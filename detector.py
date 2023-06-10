@@ -40,11 +40,8 @@ while True:
     # Create an edge image
     edges = create_edge_image(img)
 
-    # Merge the two picture
-    img = cv2.addWeighted(img, 0.8, edges, 0.2, 0)
-
     # Show the image
-    show_picture(img)
+    show_picture(edges)
 
     # Save a picture if i press the 'p' button
     if cv2.waitKey(1) == ord('p'):
