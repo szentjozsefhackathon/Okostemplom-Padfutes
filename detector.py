@@ -1,14 +1,22 @@
 import cv2
 import numpy as np
+import math
 
 cam = "rtsp://Hackathon:SzentJozsef1@192.168.0.180:554/cam/realmonitor?channel=2&subtype=1"
-index = 0
+index = 10
 
 # Load the camera
-cap = cv2.VideoCapture(cam)
+#cap = cv2.VideoCapture(cam)
 
 def get_real_time_footage():
     _, img = cap.read()
+
+    if img is None:
+        cap.release()
+        cap = cv2.VideoCapture(cam)
+        print("No image, restaring camera loader!")
+        get_real_time_footage()
+
     return img
 
 def show_picture(img):
@@ -18,11 +26,8 @@ def save_image(img, index):
     cv2.imwrite('test-' + str(index) + '.jpg', img)
 
 def create_edge_image(img):
-    # Convert to grayscale
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
     # Detect the edges
-    edges = cv2.Canny(gray, 100, 200)
+    edges = cv2.Canny(img, 100, 200)
 
     return edges
 
@@ -30,32 +35,64 @@ def create_edge_image(img):
 def reduce_noise(img):
     return cv2.fastNlMeansDenoising(img, None, 10, 7, 21)
 
-while True:
-    # Read the frame
-    img = get_real_time_footage()
+def apply_mask(img, mask):
+    # Convert the img image to the same data type as the mask image
+    img = img.astype(mask.dtype)
 
-    # Reduce noise
-    img = reduce_noise(img)
-
-    # Create an edge image
-    edges = create_edge_image(img)
+    # Create a new image with only the white pixels from the mask
+    masked_image = cv2.bitwise_and(img, img, mask=mask)
 
     # Show the image
-    show_picture(edges)
+    show_picture(img)
 
-    # Save a picture if i press the 'p' button
-    if cv2.waitKey(1) == ord('p'):
-        save_image(img, index)
-        index += 1
-        print("Picture saved")
+    # Return the number of connected components
+    return masked_image
 
-    # Wait 500 ms
-    cv2.waitKey(1000)
+def prepare_mask(mask):
+    # Convert the mask to grayscale
+    mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
 
-    # Stop if escape key is pressed
-    k = cv2.waitKey(30) & 0xff
-    if k==27:
-        break
+    #mask = cv2.dilate(mask, None, iterations=1)
+    #mask = cv2.erode(mask, None, iterations=1)
 
-# Release the VideoCapture object
-cap.release()
+    # Innvert the mask
+    mask = cv2.bitwise_not(mask)
+
+    return mask
+
+def prepare_image(img):
+    img = reduce_noise(img)
+    
+    brightness = 80
+    img = cv2.addWeighted(img, 1, img, 0, brightness)
+
+    contrast = 20
+    img = cv2.addWeighted(img, contrast, img, 0, int(round(255*(1-contrast)/2)))
+
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    img = create_edge_image(img)
+    #img = cv2.dilate(img, None, iterations=1)
+    #img = cv2.erode(img, None, iterations=1)
+    return img
+
+# Load an image
+#img = cv2.imread('test-2.jpg')
+img = cv2.imread('images/edges-0.jpg')
+mask = cv2.imread('images/sector1_edge0.jpg')
+
+# Prepare the image
+img = prepare_image(img)
+print('1')
+mask = prepare_mask(mask)
+print('2')
+# Apply the mask
+#img = apply_mask(img, mask)
+
+# Show the image
+show_picture(img)
+
+# Wait until esc pressed
+cv2.waitKey(0)
+
+# Close the window
+cv2.destroyAllWindows()
