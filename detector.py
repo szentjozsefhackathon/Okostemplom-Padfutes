@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 cam = "rtsp://Hackathon:SzentJozsef1@192.168.0.180:554/cam/realmonitor?channel=2&subtype=1"
-index = 0
+index = 10
 
 # Load the camera
 cap = cv2.VideoCapture(cam)
@@ -30,10 +30,16 @@ def create_edge_image(img):
 def reduce_noise(img):
     return cv2.fastNlMeansDenoising(img, None, 10, 7, 21)
 
-# Apply mask on the image
-def apply_mask(img, mask):
-    return cv2.bitwise_and(img, img, mask=mask)
+# Problem: we have an image: img and a mask: mask. We want to count the white pixels on the img that are in the mask
+def count_white_pixels(img, mask):
+    # Create a new image with only the white pixels from the mask
+    white_pixels = cv2.bitwise_and(img, img, mask=mask)
 
+    # Convert the image to grayscale
+    white_pixels = cv2.cvtColor(white_pixels, cv2.COLOR_BGR2GRAY)
+
+    # Count the white pixels
+    return cv2.countNonZero(white_pixels)
 
 # Main loop
 while True:
@@ -43,7 +49,7 @@ while True:
     if img is None:
         cap.release()
         cap = cv2.VideoCapture(cam)
-        print("No image")
+        print("No image, restaring camera")
         continue
 
     # Reduce noise
@@ -58,6 +64,11 @@ while True:
     # Save a picture if i press the 'p' button
     if cv2.waitKey(1) == ord('p'):
         save_image(img, index)
+        index += 1
+        print("Picture saved")
+
+    if cv2.waitKey(1) == ord('q'):
+        save_image(edges, index)
         index += 1
         print("Picture saved")
 
