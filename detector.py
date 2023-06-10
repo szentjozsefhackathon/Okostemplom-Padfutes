@@ -64,8 +64,11 @@ def remove_horizontal_lines(img):
     # Detect the horizontal lines
     horizontal_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (30, 1))
     detect_horizontal = cv2.morphologyEx(img, cv2.MORPH_OPEN, horizontal_kernel, iterations=2)
+    cnts = cv2.findContours(detect_horizontal, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    img = cv2.subtract(img, detect_horizontal)
+    cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+    for c in cnts:
+        cv2.drawContours(img, [c], -1, (36,255,12), 2)
 
     return img
 
@@ -84,6 +87,11 @@ def prepare_image(img):
     #img = cv2.erode(img, None, iterations=1)
     return img
 
+def prepare_image_2(img):
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+
+    return img
 # Load an image
 #img = cv2.imread('images/ulo/l22u.jpg')
 img = cv2.imread('test-2.jpg')
@@ -91,16 +99,16 @@ base = cv2.imread('images/edges-0.jpg')
 mask = cv2.imread('images/sector1_edge0.jpg')
 
 # Prepare the image
-img = prepare_image(img)
+img = prepare_image_2(img)
 base = prepare_image(base)
 mask = prepare_mask(mask)
 # Apply the mask
 #img = apply_mask(img, mask)
 
-base = cv2.dilate(base, None, iterations=5)
-img = cv2.subtract(img, base)
+#base = cv2.dilate(base, None, iterations=2)
+#img = cv2.subtract(img, base)
 
-#img = remove_horizontal_lines(img)
+img = remove_horizontal_lines(img)
 
 # Show the image
 show_picture(img)
