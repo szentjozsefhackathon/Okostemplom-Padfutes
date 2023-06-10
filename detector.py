@@ -60,13 +60,22 @@ def prepare_mask(mask):
 
     return mask
 
+def remove_horizontal_lines(img):
+    # Detect the horizontal lines
+    horizontal_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (30, 1))
+    detect_horizontal = cv2.morphologyEx(img, cv2.MORPH_OPEN, horizontal_kernel, iterations=2)
+
+    img = cv2.subtract(img, detect_horizontal)
+
+    return img
+
 def prepare_image(img):
     img = reduce_noise(img)
     
     brightness = 80
     img = cv2.addWeighted(img, 1, img, 0, brightness)
 
-    contrast = 20
+    contrast = 50
     img = cv2.addWeighted(img, contrast, img, 0, int(round(255*(1-contrast)/2)))
 
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -76,17 +85,22 @@ def prepare_image(img):
     return img
 
 # Load an image
-#img = cv2.imread('test-2.jpg')
-img = cv2.imread('images/edges-0.jpg')
+#img = cv2.imread('images/ulo/l22u.jpg')
+img = cv2.imread('test-2.jpg')
+base = cv2.imread('images/edges-0.jpg')
 mask = cv2.imread('images/sector1_edge0.jpg')
 
 # Prepare the image
 img = prepare_image(img)
-print('1')
+base = prepare_image(base)
 mask = prepare_mask(mask)
-print('2')
 # Apply the mask
 #img = apply_mask(img, mask)
+
+base = cv2.dilate(base, None, iterations=5)
+img = cv2.subtract(img, base)
+
+#img = remove_horizontal_lines(img)
 
 # Show the image
 show_picture(img)
