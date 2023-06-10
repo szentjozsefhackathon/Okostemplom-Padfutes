@@ -6,7 +6,7 @@ cam1 = "rtsp://Hackathon:SzentJozsef1@192.168.0.180:554/cam/realmonitor?channel=
 cam3 = "rtsp://Hackathon:SzentJozsef1@192.168.0.180:554/cam/realmonitor?channel=7&subtype=1"
 
 # People cascade
-sitting_people_cascade = cv2.CascadeClassifier('haarcascade_upperbody.xml')
+sitting_people_cascade = cv2.CascadeClassifier('detect-with-ai/haarcascade_upperbody.xml')
 
 # Load and display the image of cam1 and recognise all people and print their coordinates
 cap = cv2.VideoCapture(cam1)
