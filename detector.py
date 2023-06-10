@@ -42,28 +42,45 @@ def count_white_pixels(img, mask):
     white_pixels = cv2.bitwise_and(img, img, mask=mask)
 
     # Display the image
-    show_picture(white_pixels)
+    # show_picture(white_pixels)
 
-    # Count the white pixels
-    white_pixels = cv2.countNonZero(white_pixels)
+    # Get the number of connected components
+    nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(white_pixels, connectivity=8)
 
-    # Return the number of white pixels
-    return white_pixels
+    # Decrease the number of connected components while the smallest component is smaller than 25 pixels
+    if len(stats) > 1:
+        while stats[np.argmin(stats[1:, -1]) + 1, -1] < 25:
+            nb_components -= 1
+            white_pixels[output == np.argmin(stats[1:, -1]) + 1] = 0
+            nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(white_pixels, connectivity=8)
+            if len(stats) <= 1:
+                break
+
+    # Return the number of connected components
+    return nb_components
 
 def get_sitting_people(img):
-    masks = np.array(["images/sectors_1.png"])
+    masks = np.array(["images/sector1_edge.jpg", "images/sector2_edge.jpg", "images/sector3_edge.jpg", 
+                      "images/sector4_edge.jpg", "images/sector5_edge.jpg", "images/sector6_edge.jpg"])
+    #masks = np.array(["images/sector3_edge.jpg"])
     sitting_people = np.array([])
     index = 0
     for mask in masks:
         # Load the mask
         mask = cv2.imread(mask)
 
+        # Innvert the mask
+        mask = cv2.bitwise_not(mask)
+
+        # Delite the edges
+        mask = cv2.erode(mask, None, iterations=3)
+
         # Count the white pixels
         white_pixels = count_white_pixels(img, mask)
 
         # If there are more than 1000 white pixels, then there is a person sitting
         print("Index: " + str(index) + " White pixels: " + str(white_pixels))
-        if white_pixels > 150:
+        if white_pixels > 50:
             sitting_people = np.append(sitting_people, index)
 
         index += 1
@@ -73,8 +90,8 @@ def get_sitting_people(img):
 # Main loop
 while True:
     # Read the frame
-    # img = get_real_time_footage()
-    img = cv2.imread("images/ulo/l12u.jpg")
+    #img = get_real_time_footage()
+    img = cv2.imread("images/edges-1.jpg")
 
     if img is None:
         cap.release()
