@@ -39,6 +39,16 @@ def prepare_mask(mask):
 def prepare_image(img):
     img = reduce_noise(img)
     
+    b, g, r = cv2.split(img)
+
+    # Apply Gaussian blur to each color channel
+    blurred_b = cv2.GaussianBlur(b, (11, 11), 0)
+    blurred_g = cv2.GaussianBlur(g, (11, 11), 0)
+    blurred_r = cv2.GaussianBlur(r, (11, 11), 0)
+
+    # Merge the blurred color channels back into an image
+    img = cv2.merge([blurred_b, blurred_g, blurred_r])
+
     brightness = 90
     img = cv2.addWeighted(img, 1, img, 0, brightness)
 
@@ -88,16 +98,23 @@ def detect_active_sectors(img):
 
     show_picture(original_img)
     return sectors
+    
+
+res_cam_index = 0
 
 while True:
     _, img = cap.read()
 
-    if img is None:
+    if img is None or res_cam_index == 10:
         cap.release()
         cap = cv2.VideoCapture(cam)
-        print("No image, restaring camera loader!")
+        print("Rstarting camera loader!")
+        res_cam_index = 0
+        continue
 
     print(detect_active_sectors(img))
+
+    res_cam_index += 1
 
     # sleep for 10000 ms
     cv2.waitKey(1000)

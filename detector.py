@@ -141,9 +141,9 @@ def detect_active_sectors(img):
 #img = cv2.imread('images/ulo/l22u.jpg')
 img = cv2.imread('test-2.jpg')
 #base = cv2.imread('images/edges-0.jpg')
-mask = cv2.imread('images/sector1_edge0 - Copy.jpg')
+mask = cv2.imread('images/sector2_edge0 - Copy.jpg')
 
-#print(detect_active_sectors(img))
+print(detect_active_sectors(img))
 
 #img = get_real_time_footage(cap)
 
@@ -157,9 +157,9 @@ mask = prepare_mask(mask)
 #print(detect_person(img))
 
 # Apply the mask
-img = apply_mask(img, mask)
+#img = apply_mask(img, mask)
 
-print(detect_person(img))
+#print(detect_person(img))
 
 # Show the image
 #show_picture(img)
