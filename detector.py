@@ -41,6 +41,9 @@ def count_white_pixels(img, mask):
     # Create a new image with only the white pixels from the mask
     white_pixels = cv2.bitwise_and(img, img, mask=mask)
 
+    # Display the image
+    show_picture(white_pixels)
+
     # Count the white pixels
     white_pixels = cv2.countNonZero(white_pixels)
 
