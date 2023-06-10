@@ -49,6 +49,9 @@ while True:
         index += 1
         print("Picture saved")
 
+    # Wait 500 ms
+    cv2.waitKey(10000)
+
     # Stop if escape key is pressed
     k = cv2.waitKey(30) & 0xff
     if k==27:
