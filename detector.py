@@ -30,6 +30,7 @@ def create_edge_image(img):
 def reduce_noise(img):
     return cv2.fastNlMeansDenoising(img, None, 10, 7, 21)
 
+# Main loop
 while True:
     # Read the frame
     img = get_real_time_footage()
