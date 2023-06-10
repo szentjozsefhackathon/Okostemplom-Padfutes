@@ -95,7 +95,7 @@ def prepare_image_2(img):
 
 def detect_person(img):
     # Remove white colors from the image
-    img = cv2.inRange(img, (128, 0, 0), (255, 255, 255))
+    img = cv2.inRange(img, (255, 255, 255), (255, 255, 255))
     
     # Remove noise
     img = cv2.morphologyEx(img, cv2.MORPH_OPEN, None, iterations=2)
@@ -109,13 +109,14 @@ def detect_person(img):
     #return img
 
 def detect_active_sectors(img):
+    original_img = img
     img = prepare_image(img)
     masks = np.array(['images/sector1_edge0 - Copy.jpg', 'images/sector2_edge0 - Copy.jpg', 
                       'images/sector3_edge0 - Copy.jpg', 'images/sector4_edge0 - Copy.jpg', 
                       'images/sector5_edge0 - Copy.jpg', 'images/sector6_edge0 - Copy.jpg', ])
 
     sectors = np.array([0, 0, 0, 0, 0, 0])
-    sector_trigger = np.array([50, 100, 100, 50, 100, 100])
+    sector_trigger = np.array([80, 100, 100, 80, 100, 100])
     index = 0
 
 
@@ -126,17 +127,23 @@ def detect_active_sectors(img):
         print(detect_person(img2))
         if detect_person(img2) > sector_trigger[index]:
             sectors[index] = 1
+            img2 = cv2.inRange(img2, (255, 255, 255), (255, 255, 255))
+            img2 = cv2.morphologyEx(img2, cv2.MORPH_OPEN, None, iterations=2)
+            contours, hierarchy = cv2.findContours(img2, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+            cv2.drawContours(original_img, contours, -1, (0, 255, 0), 2)
         index += 1
+
+    show_picture(img)
 
     return sectors
 
 # Load an image
 #img = cv2.imread('images/ulo/l22u.jpg')
-img = cv2.imread('test-fail.jpg')
+img = cv2.imread('test-2.jpg')
 #base = cv2.imread('images/edges-0.jpg')
-mask = cv2.imread('images/sector2_edge0 - Copy.jpg')
+mask = cv2.imread('images/sector1_edge0 - Copy.jpg')
 
-print(detect_active_sectors(img))
+#print(detect_active_sectors(img))
 
 #img = get_real_time_footage(cap)
 
@@ -150,12 +157,12 @@ mask = prepare_mask(mask)
 #print(detect_person(img))
 
 # Apply the mask
-#img = apply_mask(img, mask)
+img = apply_mask(img, mask)
 
-#print(detect_person(img))
+print(detect_person(img))
 
 # Show the image
-show_picture(img)
+#show_picture(img)
 
 # Wait until esc pressed
 cv2.waitKey(0)
