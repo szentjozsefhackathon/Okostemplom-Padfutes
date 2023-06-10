@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import math
 
 cam = "rtsp://Hackathon:SzentJozsef1@192.168.0.180:554/cam/realmonitor?channel=2&subtype=1"
 index = 10
@@ -30,21 +31,47 @@ def create_edge_image(img):
 def reduce_noise(img):
     return cv2.fastNlMeansDenoising(img, None, 10, 7, 21)
 
-# Problem: we have an image: img and a mask: mask. We want to count the white pixels on the img that are in the mask
 def count_white_pixels(img, mask):
+    # Grayscale the mask and the image
+    mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+
+    # Convert the img image to the same data type as the mask image
+    img = img.astype(mask.dtype)
+
     # Create a new image with only the white pixels from the mask
     white_pixels = cv2.bitwise_and(img, img, mask=mask)
 
-    # Convert the image to grayscale
-    white_pixels = cv2.cvtColor(white_pixels, cv2.COLOR_BGR2GRAY)
-
     # Count the white pixels
-    return cv2.countNonZero(white_pixels)
+    white_pixels = cv2.countNonZero(white_pixels)
+
+    # Return the number of white pixels
+    return white_pixels
+
+def get_sitting_people(img):
+    masks = np.array(["images/sectors_1.png"])
+    sitting_people = np.array([])
+    index = 0
+    for mask in masks:
+        # Load the mask
+        mask = cv2.imread(mask)
+
+        # Count the white pixels
+        white_pixels = count_white_pixels(img, mask)
+
+        # If there are more than 1000 white pixels, then there is a person sitting
+        print("Index: " + str(index) + " White pixels: " + str(white_pixels))
+        if white_pixels > 150:
+            sitting_people = np.append(sitting_people, index)
+
+        index += 1
+
+    return sitting_people
 
 # Main loop
 while True:
     # Read the frame
-    img = get_real_time_footage()
+    # img = get_real_time_footage()
+    img = cv2.imread("images/ulo/l12u.jpg")
 
     if img is None:
         cap.release()
@@ -71,6 +98,10 @@ while True:
         save_image(edges, index)
         index += 1
         print("Picture saved")
+
+    # Get the sitting people
+    sitting_people = get_sitting_people(edges)
+    print("Sitting people: " + str(len(sitting_people)))
 
     # Wait 500 ms
     cv2.waitKey(1000)
