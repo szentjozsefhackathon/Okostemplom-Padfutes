@@ -28,6 +28,8 @@ def create_edge_image(img):
 
 # Fast NINS denoise
 def reduce_noise(img):
+    if img is None:
+        return img
     return cv2.fastNlMeansDenoising(img, None, 10, 7, 21)
 
 # Main loop
