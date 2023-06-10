@@ -15,7 +15,7 @@ def save_image(img, index):
 
 
 def reduce_noise(img):
-    return cv2.fastNlMeansDenoising(img, None, 10, 7, 21)
+    return cv2.fastNlMeansDenoising(img, None, 1, 7, 21)
 
 def apply_mask(img, mask):
     # Convert the img image to the same data type as the mask image
@@ -74,12 +74,11 @@ def detect_active_sectors(img):
     original_img = img
     #original_img = prepare_image(original_img)
     img = prepare_image(img)
-    masks = np.array(['images/sector1_edge0 - Copy.jpg', 'images/sector2_edge0 - Copy.jpg', 
-                      'images/sector3_edge0 - Copy.jpg', 'images/sector4_edge0 - Copy.jpg', 
-                      'images/sector5_edge0 - Copy.jpg', 'images/sector6_edge0 - Copy.jpg', ])
+    masks = np.array(['sect1.jpg', 'sect2.jpg', 'sect3.jpg',
+                      'sect4.jpg', 'sect5.jpg', 'sect6.jpg' ])
 
     sectors = np.array([0, 0, 0, 0, 0, 0])
-    sector_trigger = np.array([50, 100, 100, 80, 100, 100])
+    sector_trigger = np.array([50, 120, 120, 80, 120, 120])
     index = 0
 
 
@@ -117,4 +116,4 @@ while True:
     res_cam_index += 1
 
     # sleep for 10000 ms
-    cv2.waitKey(1000)
+    cv2.waitKey(60000)
