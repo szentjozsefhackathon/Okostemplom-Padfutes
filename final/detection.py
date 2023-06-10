@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import math
+import switch
 
 cam = "rtsp://Hackathon:SzentJozsef1@192.168.0.180:554/cam/realmonitor?channel=2&subtype=1"
 
@@ -110,8 +111,10 @@ while True:
         print("Rstarting camera loader!")
         res_cam_index = 0
         continue
-
-    print(detect_active_sectors(img))
+    
+    active_sectors = detect_active_sectors(img)
+    switch.switch(active_sectors)
+    print(active_sectors)
 
     res_cam_index += 1
 
