@@ -60,18 +60,6 @@ def prepare_mask(mask):
 
     return mask
 
-def remove_horizontal_lines(img):
-    # Detect the horizontal lines
-    horizontal_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (30, 1))
-    detect_horizontal = cv2.morphologyEx(img, cv2.MORPH_OPEN, horizontal_kernel, iterations=2)
-    cnts = cv2.findContours(detect_horizontal, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-    cnts = cnts[0] if len(cnts) == 2 else cnts[1]
-    for c in cnts:
-        cv2.drawContours(img, [c], -1, (36,255,12), 2)
-
-    return img
-
 def prepare_image(img):
     img = reduce_noise(img)
     
@@ -111,9 +99,9 @@ def detect_person(img):
 def detect_active_sectors(img):
     original_img = img
     img = prepare_image(img)
-    masks = np.array(['images/sector1_edge0 - Copy.jpg', 'images/sector2_edge0 - Copy.jpg', 
-                      'images/sector3_edge0 - Copy.jpg', 'images/sector4_edge0 - Copy.jpg', 
-                      'images/sector5_edge0 - Copy.jpg', 'images/sector6_edge0 - Copy.jpg', ])
+    masks = np.array(['final/sect1.jpg', 'final/sect2.jpg', 
+                      'final/sect3.jpg', 'final/sect4.jpg', 
+                      'final/sect5.jpg', 'final/sect6.jpg'])
 
     sectors = np.array([0, 0, 0, 0, 0, 0])
     sector_trigger = np.array([80, 100, 100, 80, 100, 100])
@@ -141,7 +129,7 @@ def detect_active_sectors(img):
 #img = cv2.imread('images/ulo/l22u.jpg')
 img = cv2.imread('test-2.jpg')
 #base = cv2.imread('images/edges-0.jpg')
-mask = cv2.imread('images/sector2_edge0 - Copy.jpg')
+mask = cv2.imread('final/sect2.jpg')
 
 print(detect_active_sectors(img))
 

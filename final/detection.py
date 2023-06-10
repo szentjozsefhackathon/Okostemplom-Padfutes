@@ -50,7 +50,7 @@ def prepare_image(img):
     # Merge the blurred color channels back into an image
     img = cv2.merge([blurred_b, blurred_g, blurred_r])
 
-    brightness = 90
+    brightness = 80
     img = cv2.addWeighted(img, 1, img, 0, brightness)
 
     contrast = 500
@@ -119,4 +119,4 @@ while True:
     res_cam_index += 1
 
     # sleep for 10000 ms
-    cv2.waitKey(60000)
+    cv2.waitKey(1000)
