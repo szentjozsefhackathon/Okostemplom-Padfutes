@@ -10,7 +10,11 @@ def detect_sitting_people(img):
 
     # There are sectors, every sector is given by 2 coordinates in a numpy array
     sectors_left = np.array([ [[228, 157], [441, 160]], [[10, 10], [20, 20]] ])
-    sectors_right = np.array([ [[228, 157], [441, 160]], [[10, 10], [20, 20]] ])
+    sectors_right = np.array([[[551, 122], [715, 134]], [[561, 135], [740, 150]],
+                              [[577, 155], [770, 169]], [[599, 176], [801, 191]],
+                              [[619, 197], [836, 218]], [[643, 229], [874, 251]],
+                              [[680, 268], [918, 288]], [[723, 316], [971, 330]],
+                              [[779, 380], [1024, 373]], [[838, 449], [1088, 430]]])
 
     # Merge the sectors into one array
     sectors = np.array([sectors_left, sectors_right])
@@ -44,7 +48,7 @@ def detect_sitting_people(img):
         print('Spread of sector', i, ':', spreads[i])
 
 # Load an image
-img = cv2.imread('C:/Users/wasde/Documents/GitHub/Szent-Jozsef-Hackathon/detect-with-color-difference/cam1.jpg')
+img = cv2.imread('detect-with-color-difference\cam1.jpg')
 
 # Call the function
 detect_sitting_people(img)

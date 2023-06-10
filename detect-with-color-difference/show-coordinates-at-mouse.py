@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 
 # Load an image
-img = cv2.imread('C:/Users/wasde/Documents/GitHub/Szent-Jozsef-Hackathon/detect-with-color-difference/cam1.jpg')
+img = cv2.imread('detect-with-color-difference\cam1.jpg')
 
 # Show the image
 cv2.imshow('image', img)
