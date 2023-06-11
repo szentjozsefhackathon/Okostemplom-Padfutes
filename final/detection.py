@@ -10,11 +10,10 @@ cam = "rtsp://Hackathon:SzentJozsef1@192.168.0.180:554/cam/realmonitor?channel=2
 cap = cv2.VideoCapture(cam)
 
 def show_picture(img):
-    cv2.imshow('image', img)
+    cv2.imshow('CAM2 - online footage', img)
 
 def save_image(img, index):
     cv2.imwrite('test-' + str(index) + '.jpg', img)
-
 
 def reduce_noise(img):
     return cv2.fastNlMeansDenoising(img, None, 1, 7, 21)
@@ -92,7 +91,7 @@ def detect_active_sectors(img):
         mask = prepare_mask(mask)
         img2 = apply_mask(img, mask)
 
-        brightness = 95
+        brightness = 100
         contrast = 500
 
         if index == 0 or index == 3:
@@ -143,7 +142,7 @@ while True:
     if active_sectors[0] == -1:
         print("The recogniser software can't work while the camera is in night mode!")
     else:
-        #switch.switch(active_sectors)
+        switch.switch(active_sectors)
         print(active_sectors)
 
     res_cam_index += 1
