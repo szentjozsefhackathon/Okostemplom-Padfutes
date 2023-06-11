@@ -30,3 +30,5 @@ Installációk:
 cv2: `python -m pip install opencv-python`
 
 numpy: `python -m pip install numpy`
+
+openhab: `python -m pip install python-openhab`
