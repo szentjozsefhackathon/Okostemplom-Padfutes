@@ -1,3 +1,4 @@
+# Code written by: Miszori Gergo, Urban Szabolcs, Boviz Daniel
 import cv2
 import numpy as np
 import math
@@ -39,22 +40,21 @@ def prepare_mask(mask):
 
 def prepare_image(img):
     img = reduce_noise(img)
-    
-    b, g, r = cv2.split(img)
 
-    # Apply Gaussian blur to each color channel
-    blurred_b = cv2.GaussianBlur(b, (11, 11), 0)
-    blurred_g = cv2.GaussianBlur(g, (11, 11), 0)
-    blurred_r = cv2.GaussianBlur(r, (11, 11), 0)
+    # Convert the image to HSL
+    #img = cv2.cvtColor(img, cv2.COLOR_BGR2HLS)
 
-    # Merge the blurred color channels back into an image
-    img = cv2.merge([blurred_b, blurred_g, blurred_r])
+    # Split the image into the different color channels
+    #luminance = img[:,:,1]
 
-    brightness = 80
-    img = cv2.addWeighted(img, 1, img, 0, brightness)
+    # Apply CLAHHE to each color channel
+    #clahe = cv2.createCLAHE(clipLimit=1.0, tileGridSize=(4,4))
+    #luminance = clahe.apply(luminance)
 
-    contrast = 500
-    img = cv2.addWeighted(img, contrast, img, 0, int(round(255*(1-contrast)/2)))
+    #luminance = cv2.inRange(luminance, 0, 200)
+
+    # Merge the CLAHHE color channels back into an image
+    #img[:,:,1] = luminance
 
     return img
 
@@ -72,8 +72,13 @@ def detect_person(img):
     #return img
 
 def detect_active_sectors(img):
+
+    # If the img isn't rgb, return -1
+    if len(img.shape) != 3:
+        return np.array([-1, -1, -1, -1, -1, -1])
+
     original_img = img
-    #original_img = prepare_image(original_img)
+    original_img = prepare_image(original_img)
     img = prepare_image(img)
     masks = np.array(['sect1.jpg', 'sect2.jpg', 'sect3.jpg',
                       'sect4.jpg', 'sect5.jpg', 'sect6.jpg' ])
@@ -82,18 +87,39 @@ def detect_active_sectors(img):
     sector_trigger = np.array([50, 120, 120, 80, 120, 120])
     index = 0
 
-
     for mask in masks:
         mask = cv2.imread(mask)
         mask = prepare_mask(mask)
         img2 = apply_mask(img, mask)
+
+        brightness = 95
+        contrast = 500
+
+        if index == 0 or index == 3:
+            brightness = 55
+            contrast = 500
+        
+        if index == 1 or index == 4:
+            brightness = 90
+            contrast = 500
+
+        img2 = cv2.addWeighted(img2, 1, img2, 0, brightness)
+        img2 = cv2.addWeighted(img2, contrast, img2, 0, int(round(255*(1-contrast)/2)))
+
         print(detect_person(img2))
         if detect_person(img2) > sector_trigger[index]:
             sectors[index] = 1
             img2 = cv2.inRange(img2, (255, 255, 255), (255, 255, 255))
             img2 = cv2.morphologyEx(img2, cv2.MORPH_OPEN, None, iterations=2)
             contours, hierarchy = cv2.findContours(img2, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-            cv2.drawContours(original_img, contours, -1, (0, 255, 0), 2)
+            # Draw rectangles around the detected persons
+            for contour in contours:
+                x, y, w, h = cv2.boundingRect(contour)
+                cv2.rectangle(original_img, (x, y), (x+w, y+h), (0, 255, 0), 2)
+        else:
+            sectors[index] = 0
+
+            
         index += 1
 
     show_picture(original_img)
@@ -113,10 +139,14 @@ while True:
         continue
     
     active_sectors = detect_active_sectors(img)
-    switch.switch(active_sectors)
-    print(active_sectors)
+
+    if active_sectors[0] == -1:
+        print("The recogniser software can't work while the camera is in night mode!")
+    else:
+        #switch.switch(active_sectors)
+        print(active_sectors)
 
     res_cam_index += 1
 
     # sleep for 10000 ms
-    cv2.waitKey(1000)
+    cv2.waitKey(3000)
