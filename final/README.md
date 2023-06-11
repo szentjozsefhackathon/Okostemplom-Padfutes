@@ -24,3 +24,9 @@ padsor szektorok:
 
 Különböző fényviszonyoknál tévedések előfordulnak
 !! Amikor a camera night modeba kapcsol az összes szektort aktívnak érzékeli !!
+
+Installációk: 
+
+cv2: `python -m pip install opencv-python`
+
+numpy: `python -m pip install numpy`
