@@ -40,21 +40,6 @@ def prepare_mask(mask):
 def prepare_image(img):
     img = reduce_noise(img)
 
-    # Convert the image to HSL
-    #img = cv2.cvtColor(img, cv2.COLOR_BGR2HLS)
-
-    # Split the image into the different color channels
-    #luminance = img[:,:,1]
-
-    # Apply CLAHHE to each color channel
-    #clahe = cv2.createCLAHE(clipLimit=1.0, tileGridSize=(4,4))
-    #luminance = clahe.apply(luminance)
-
-    #luminance = cv2.inRange(luminance, 0, 200)
-
-    # Merge the CLAHHE color channels back into an image
-    #img[:,:,1] = luminance
-
     return img
 
 def detect_person(img):
@@ -91,15 +76,15 @@ def detect_active_sectors(img):
         mask = prepare_mask(mask)
         img2 = apply_mask(img, mask)
 
-        brightness = 100
+        brightness = 90
         contrast = 500
 
         if index == 0 or index == 3:
-            brightness = 55
+            brightness = 50
             contrast = 500
         
         if index == 1 or index == 4:
-            brightness = 90
+            brightness = 80
             contrast = 500
 
         img2 = cv2.addWeighted(img2, 1, img2, 0, brightness)
@@ -120,8 +105,8 @@ def detect_active_sectors(img):
 
             
         index += 1
-
-    show_picture(original_img)
+    
+    #show_picture(original_img)
     return sectors
     
 
@@ -133,7 +118,6 @@ while True:
     if img is None or res_cam_index == 10:
         cap.release()
         cap = cv2.VideoCapture(cam)
-        print("Rstarting camera loader!")
         res_cam_index = 0
         continue
     
