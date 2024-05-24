@@ -3,6 +3,9 @@ import cv2
 import numpy as np
 import math
 import switch
+from os.path import exists
+import os
+import time
 
 cam = "rtsp://Hackathon:SzentJozsef1@192.168.0.180:554/cam/realmonitor?channel=2&subtype=1"
 
@@ -63,6 +66,7 @@ def detect_active_sectors(img):
 
     original_img = img
     original_img = prepare_image(original_img)
+    detected_img = prepare_image(img)
     img = prepare_image(img)
     masks = np.array(['sect1.jpg', 'sect2.jpg', 'sect3.jpg',
                       'sect4.jpg', 'sect5.jpg', 'sect6.jpg' ])
@@ -72,6 +76,12 @@ def detect_active_sectors(img):
     index = 0
 
     for mask in masks:
+        
+        absolute_path = os.path.dirname(__file__)        
+        mask = os.path.join(absolute_path, mask)
+        file_exists = exists(mask)
+        #print(file_exists)
+
         mask = cv2.imread(mask)
         mask = prepare_mask(mask)
         img2 = apply_mask(img, mask)
@@ -89,8 +99,8 @@ def detect_active_sectors(img):
 
         img2 = cv2.addWeighted(img2, 1, img2, 0, brightness)
         img2 = cv2.addWeighted(img2, contrast, img2, 0, int(round(255*(1-contrast)/2)))
-
-        print(detect_person(img2))
+        
+        detected = detect_person(img2)
         if detect_person(img2) > sector_trigger[index]:
             sectors[index] = 1
             img2 = cv2.inRange(img2, (255, 255, 255), (255, 255, 255))
@@ -99,14 +109,19 @@ def detect_active_sectors(img):
             # Draw rectangles around the detected persons
             for contour in contours:
                 x, y, w, h = cv2.boundingRect(contour)
-                cv2.rectangle(original_img, (x, y), (x+w, y+h), (0, 255, 0), 2)
+                cv2.rectangle(detected_img, (x, y), (x+w, y+h), (0, 255, 0), 2)
         else:
             sectors[index] = 0
 
-            
+        print("Sector " + str(index + 1) + ": " + str(sectors[index]) + " (detect_person=" + str(detected) + ")")     
         index += 1
     
     #show_picture(original_img)
+    path_to_tests = '/openhab_conf/scripts/Szent-Jozsef-Hackathon/tests/'
+    now = str(int(time.time()))
+    cv2.imwrite(path_to_tests + '/detected_' + now  + '_' + ''.join(map(str, sectors))  + '.jpg', detected_img)
+    cv2.imwrite(path_to_tests + '/detected_' + now + '.jpg', original_img)
+    
     return sectors
     
 
@@ -132,4 +147,5 @@ while True:
     res_cam_index += 1
 
     # sleep for 10000 ms
-    cv2.waitKey(3000)
+    cv2.waitKey(10000)
+    break

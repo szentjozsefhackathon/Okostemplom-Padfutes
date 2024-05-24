@@ -1,17 +1,16 @@
+
 from openhab import OpenHAB
 
 url = 'http://192.168.0.200:8080/rest'
+url = 'http://localhost:8080/rest'
 openhab = OpenHAB(url)
 
 all_items = openhab.fetch_all_items()
 
 items = []
 
-for i in range(3):
-    item = 'BalElsoOszlop_state_' + str(i+1)
-    items.append(all_items.get(item))
-for i in range(3):
-    item = 'JobbElsoOszlop_state_' + str(i+1)
+for i in range(6):
+    item = 'PadFutes_' + str(i+1)
     items.append(all_items.get(item))
 
 def switch(array):
