@@ -1,8 +1,8 @@
 
 from openhab import OpenHAB
 
-url = 'http://192.168.0.200:8080/rest'
-url = 'http://localhost:8080/rest'
+url = 'http://10.5.10.5:8080/rest'
+# url = 'http://localhost:8080/rest'
 openhab = OpenHAB(url)
 
 all_items = openhab.fetch_all_items()
